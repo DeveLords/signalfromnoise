@@ -1,0 +1,5 @@
+/__pycache__
+/.env
+/.vscode
+AWR1843config.cfg
+readData_AWR1843.py
