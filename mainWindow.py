@@ -1,7 +1,6 @@
-from PySide6 import QtGui, QtWidgets, QtCore
+from PySide6 import QtWidgets, QtCore
 import pyqtgraph as pg
 import numpy as np
-# import time
 
 class MainWindow(QtWidgets.QMainWindow):
     def __init__(self):
@@ -9,20 +8,36 @@ class MainWindow(QtWidgets.QMainWindow):
         self.setWindowTitle('SignalFromNoise')
 
         # Виджеты
-        win = QtWidgets.QWidget()
+        centralWidget = QtWidgets.QWidget()
         startBtn = QtWidgets.QRadioButton('Start')
         stopBtn = QtWidgets.QRadioButton('Stop')
-        self.plt = pg.PlotWidget(background='#04005f')
+        self.plotRadar = pg.PlotWidget(background='#04005f')
         grp = QtWidgets.QGroupBox('Manage')
+
+        self.plotRadar.setAspectLocked()
+
+        self.plotRadar.addLine(x=0, pen=0.2)
+        self.plotRadar.addLine(y=0, pen=0.2)
+        for r in range(1, 20, 1):
+            circle = QtWidgets.QGraphicsEllipseItem(-r, -r, r *2, r *2)
+            circle.setPen(pg.mkPen(0.2))
+            circle.setStartAngle(-480)
+            circle.setSpanAngle(-1920)
+            self.plotRadar.addItem(circle)
+            circle = QtWidgets.QGraphicsEllipseItem(-r, -r, r *2, r *2)
+            circle.setPen(pg.mkPen(0.2))
+            circle.setStartAngle(-960)
+            circle.setSpanAngle(-960)
+            self.plotRadar.addItem(circle)
 
         # Макеты
         layout = QtWidgets.QGridLayout()
         layoutGrp = QtWidgets.QVBoxLayout()
 
         # Настройка отображения
-        self.setCentralWidget(win)
+        self.setCentralWidget(centralWidget)
 
-        win.setLayout(layout)
+        centralWidget.setLayout(layout)
 
         layoutGrp.addWidget(startBtn)
         layoutGrp.addWidget(stopBtn)
@@ -32,22 +47,22 @@ class MainWindow(QtWidgets.QMainWindow):
         stopBtn.setChecked(True)
         stopBtn.setCheckable(True)
 
-        layout.addWidget(grp, 1, 0, 3, 1)
-        layout.addWidget(self.plt, 0, 1, 3, 1)
+        layout.addWidget(grp, 0, 0)
+        layout.addWidget(self.plotRadar, 0, 1)
 
-        self.plt.setXRange(-0.5, 0.5)
-        self.plt.setYRange(0, 1.5)
+        self.plotRadar.setXRange(-5, 5)
+        self.plotRadar.setYRange(0, 10)
 
-        self.plt.setLabel('left',text = 'Y position (m)')
-        self.plt.setLabel('bottom', text= 'X position (m)')
-        self.plt.showGrid(x=True, y=True)
+        self.plotRadar.setLabel('left',text = 'Y position (m)')
+        self.plotRadar.setLabel('bottom', text= 'X position (m)')
+        self.plotRadar.showGrid(x=True, y=True)
 
         # Указатель на новый график с точками
-        self.new_points = self.plt.plot([], [], pen=None, symbol='o')
+        self.new_points = self.plotRadar.plot([], [], pen=None, symbol='o')
 
         # Таймер
         self.timer = QtCore.QTimer()
-        self.timer.setInterval(16)
+        self.timer.setInterval(500)
         self.timer.timeout.connect(self.updatePlot)
 
         # Сигналы на продолжение и приостановку генерации
@@ -56,7 +71,11 @@ class MainWindow(QtWidgets.QMainWindow):
 
     # Обновление графика
     def updatePlot(self):
-        self.x = np.random.uniform(-0.5, 0.5, 24)
-        self.y = np.random.uniform(0, 1.5, len(self.x))
+        theta = np.linspace(np.pi/6, (5*np.pi)/6, 20)
+        radius = np.random.uniform(0, 10, size=20)
+
+        # Transform to cartesian and plot
+        self.x = radius * np.cos(theta)
+        self.y = radius * np.sin(theta)
 
         self.new_points.setData(self.x, self.y)
