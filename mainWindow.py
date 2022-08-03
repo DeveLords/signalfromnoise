@@ -11,38 +11,44 @@ class MainWindow(QtWidgets.QMainWindow):
         centralWidget = QtWidgets.QWidget()
         startBtn = QtWidgets.QRadioButton('Start')
         stopBtn = QtWidgets.QRadioButton('Stop')
+
+        self.fovRadar = QtWidgets.QSpinBox()
+        self.fovRadar.setRange(0, 360)
+        self.fovRadar.setValue(120)
+        self.fovRadar.setSingleStep(2)
+
+        self.rovRadar = QtWidgets.QSpinBox()
+        self.rovRadar.setRange(0, 20)
+        self.rovRadar.setValue(10)
+
         self.plotRadar = pg.PlotWidget(background='#04005f')
         grp = QtWidgets.QGroupBox('Manage')
 
         self.plotRadar.setAspectLocked()
 
-        self.plotRadar.addLine(x=0, pen=0.2)
-        self.plotRadar.addLine(y=0, pen=0.2)
-        for r in range(1, 20, 1):
-            circle = QtWidgets.QGraphicsEllipseItem(-r, -r, r *2, r *2)
-            circle.setPen(pg.mkPen(0.2))
-            circle.setStartAngle(-480)
-            circle.setSpanAngle(-1920)
-            self.plotRadar.addItem(circle)
-            circle = QtWidgets.QGraphicsEllipseItem(-r, -r, r *2, r *2)
-            circle.setPen(pg.mkPen(0.2))
-            circle.setStartAngle(-960)
-            circle.setSpanAngle(-960)
-            self.plotRadar.addItem(circle)
 
         # Макеты
         layout = QtWidgets.QGridLayout()
-        layoutGrp = QtWidgets.QVBoxLayout()
+        layoutGrpRadar = QtWidgets.QVBoxLayout()
+        layoutGrpRadarView = QtWidgets.QGridLayout()
 
         # Настройка отображения
         self.setCentralWidget(centralWidget)
 
         centralWidget.setLayout(layout)
 
-        layoutGrp.addWidget(startBtn)
-        layoutGrp.addWidget(stopBtn)
+        layoutGrpRadar.addWidget(startBtn)
+        layoutGrpRadar.addWidget(stopBtn)
+        layoutGrpRadarView.addWidget(QtWidgets.QLabel('Fov'), 0, 0)
+        layoutGrpRadarView.addWidget(QtWidgets.QLabel('Range'), 0, 1)
+        layoutGrpRadarView.addWidget(self.fovRadar, 1, 0)
+        layoutGrpRadarView.addWidget(self.rovRadar, 1, 1)
 
-        grp.setLayout(layoutGrp)
+        layoutGrpRadar.addLayout(layoutGrpRadarView)
+
+        grp.setLayout(layoutGrpRadar)
+
+        grp.setSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
 
         stopBtn.setChecked(True)
         stopBtn.setCheckable(True)
@@ -58,21 +64,48 @@ class MainWindow(QtWidgets.QMainWindow):
         self.plotRadar.showGrid(x=True, y=True)
 
         # Указатель на новый график с точками
-        self.new_points = self.plotRadar.plot([], [], pen=None, symbol='o')
+        self.updateGridPlot()
 
         # Таймер
         self.timer = QtCore.QTimer()
-        self.timer.setInterval(500)
+        self.timer.setInterval(50)
         self.timer.timeout.connect(self.updatePlot)
 
         # Сигналы на продолжение и приостановку генерации
         startBtn.clicked.connect(self.timer.start)
         stopBtn.clicked.connect(self.timer.stop)
 
+        self.fovRadar.valueChanged.connect(self.updateGridPlot)
+        self.rovRadar.valueChanged.connect(self.updateGridPlot)
+
+
+    def updateGridPlot(self):
+        fov = self.fovRadar.value()
+        rov = self.rovRadar.value()
+        self.plotRadar.clear()
+        for r in range(1, rov + 1, 1):
+            circle = QtWidgets.QGraphicsEllipseItem(-r, -r, r * 2, r * 2)
+            circle.setPen(pg.mkPen(0.2))
+            if fov < 360:
+                emp = (180-fov)/2
+                circle.setStartAngle(-emp * 16)
+                circle.setSpanAngle((-180 + emp*2) * 16)
+                self.plotRadar.addItem(circle)
+            else:
+                self.plotRadar.addItem(circle)
+        self.new_points = self.plotRadar.plot([], [], pen=None, symbol='o')
+
     # Обновление графика
     def updatePlot(self):
-        theta = np.linspace(np.pi/6, (5*np.pi)/6, 20)
-        radius = np.random.uniform(0, 10, size=20)
+        fov = self.fovRadar.value()
+        rov = self.rovRadar.value()
+        if fov < 360:
+            mean = (180-fov)/2
+            theta = np.linspace(np.deg2rad(mean), np.deg2rad(180-mean), 20)
+            radius = np.random.uniform(0, rov, size=20)
+        else:
+            theta = np.linspace(0, 2*np.pi, 100)
+            radius = np.random.uniform(0, rov, size=100)
 
         # Transform to cartesian and plot
         self.x = radius * np.cos(theta)
