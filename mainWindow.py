@@ -2,6 +2,8 @@ from PySide6 import QtWidgets, QtCore
 import pyqtgraph as pg
 import numpy as np
 
+# import readData_AWR1843
+
 class MainWindow(QtWidgets.QMainWindow):
     def __init__(self):
         super().__init__()
@@ -9,8 +11,13 @@ class MainWindow(QtWidgets.QMainWindow):
 
         # Виджеты
         centralWidget = QtWidgets.QWidget()
+
         startBtn = QtWidgets.QRadioButton('Start')
+
+
         stopBtn = QtWidgets.QRadioButton('Stop')
+        stopBtn.setChecked(True)
+        stopBtn.setCheckable(True)
 
         self.fovRadar = QtWidgets.QSpinBox()
         self.fovRadar.setRange(0, 360)
@@ -22,42 +29,40 @@ class MainWindow(QtWidgets.QMainWindow):
         self.rovRadar.setValue(10)
 
         self.plotRadar = pg.PlotWidget(background='#04005f')
-        grp = QtWidgets.QGroupBox('Manage')
-
+        self.plotRadar.setXRange(-5, 5)
+        self.plotRadar.setYRange(0, 10)
         self.plotRadar.setAspectLocked()
 
+        self.plotRnd = pg.PlotWidget(background='#ffffff')
+
+        grp = QtWidgets.QGroupBox('Manage')
+        grp.setSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
 
         # Макеты
         layout = QtWidgets.QGridLayout()
+        layout.addWidget(grp, 0, 0)
+        layout.addWidget(self.plotRadar, 0, 1)
+        layout.addWidget(self.plotRnd, 0, 3)
+
         layoutGrpRadar = QtWidgets.QVBoxLayout()
         layoutGrpRadarView = QtWidgets.QGridLayout()
 
-        # Настройка отображения
-        self.setCentralWidget(centralWidget)
-
-        centralWidget.setLayout(layout)
-
         layoutGrpRadar.addWidget(startBtn)
         layoutGrpRadar.addWidget(stopBtn)
+
         layoutGrpRadarView.addWidget(QtWidgets.QLabel('Fov'), 0, 0)
         layoutGrpRadarView.addWidget(QtWidgets.QLabel('Range'), 0, 1)
         layoutGrpRadarView.addWidget(self.fovRadar, 1, 0)
         layoutGrpRadarView.addWidget(self.rovRadar, 1, 1)
 
-        layoutGrpRadar.addLayout(layoutGrpRadarView)
+        # Настройка отображения
+        self.setCentralWidget(centralWidget)
 
+        centralWidget.setLayout(layout)
+        layoutGrpRadar.addLayout(layoutGrpRadarView)
         grp.setLayout(layoutGrpRadar)
 
-        grp.setSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
 
-        stopBtn.setChecked(True)
-        stopBtn.setCheckable(True)
-
-        layout.addWidget(grp, 0, 0)
-        layout.addWidget(self.plotRadar, 0, 1)
-
-        self.plotRadar.setXRange(-5, 5)
-        self.plotRadar.setYRange(0, 10)
 
         self.plotRadar.setLabel('left',text = 'Y position (m)')
         self.plotRadar.setLabel('bottom', text= 'X position (m)')
@@ -78,7 +83,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.fovRadar.valueChanged.connect(self.updateGridPlot)
         self.rovRadar.valueChanged.connect(self.updateGridPlot)
 
-
+    # Обновление сетки графика при изменении диапазона
     def updateGridPlot(self):
         fov = self.fovRadar.value()
         rov = self.rovRadar.value()
@@ -99,16 +104,16 @@ class MainWindow(QtWidgets.QMainWindow):
     def updatePlot(self):
         fov = self.fovRadar.value()
         rov = self.rovRadar.value()
-        if fov < 360:
-            mean = (180-fov)/2
-            theta = np.linspace(np.deg2rad(mean), np.deg2rad(180-mean), 20)
-            radius = np.random.uniform(0, rov, size=20)
-        else:
-            theta = np.linspace(0, 2*np.pi, 100)
-            radius = np.random.uniform(0, rov, size=100)
 
-        # Transform to cartesian and plot
-        self.x = radius * np.cos(theta)
-        self.y = radius * np.sin(theta)
+        x, y = readAndParseData(fov, rov)
 
-        self.new_points.setData(self.x, self.y)
+        self.new_points.setData(x, y)
+
+
+def readAndParseData(fov, rov):
+    mean = (180-fov)/2
+    theta = np.linspace(np.deg2rad(mean), np.deg2rad(180-mean), 100)
+    radius = np.random.uniform(0, rov, size=theta.size)
+    x = radius * np.cos(theta)
+    y = radius * np.sin(theta)
+    return x, y
