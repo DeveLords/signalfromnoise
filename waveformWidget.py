@@ -11,7 +11,7 @@ class waveformWidget(QtWidgets.QWidget):
 
         # Параметры графика
         self.waveform = pg.PlotWidget(title=namePlot, background="#efefef")
-        self.waveform.setAspectLocked()
+        # self.waveform.setAspectLocked()
         self.waveform.showGrid(x=True, y=True)
         self.waveform.setLabel('bottom', 'time', 's')
         self.waveform.setLabel('left', 'Phase', 'radian')
