@@ -1,5 +1,5 @@
 from PySide6 import QtWidgets, QtCore
-from widgetFreq import widgetFreq
+# from waveformWidget import widgetFreq
 
 import pyqtgraph as pg
 import numpy as np
