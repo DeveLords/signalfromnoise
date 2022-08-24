@@ -1,5 +1,9 @@
 /__pycache__
 /.env
 /.vscode
+
+
+reference.jpg
 AWR1843config.cfg
 readData_AWR1843.py
+pyqtExamples.py
