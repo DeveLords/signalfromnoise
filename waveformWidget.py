@@ -6,12 +6,11 @@ import pyqtgraph as pg
 import numpy as np
 
 class waveformWidget(QtWidgets.QWidget):
-    def __init__(self, namePlot: str, amplitude = 1., frequency = 1.):
+    def __init__(self, namePlot: str):
         super().__init__()
 
         # Параметры графика
         self.waveform = pg.PlotWidget(title=namePlot, background="#efefef")
-        # self.waveform.setAspectLocked()
         self.waveform.showGrid(x=True, y=True)
         self.waveform.setLabel('bottom', 'time', 's')
         self.waveform.setLabel('left', 'Phase', 'radian')
@@ -27,46 +26,30 @@ class waveformWidget(QtWidgets.QWidget):
         self.data = np.array([[0,0]])
         self.curve = self.waveform.plot(self.data, pen='#000000')
 
+        # Указатель на последний элемент при заполнении массива
         self.ptr = 0
-        self.counterTime = 0
 
-        # Параметры генерации синусоидального сигнала
-        self.freq = frequency
-        self.amplitude = amplitude
-
+    # Очистка графика от данных, точка отсчета (0, 0)
     def refreshWaveform(self):
         self.ptr = 0
-        self.counterTime = 0
         self.waveform.clear()
-
         self.curve = self.waveform.plot(self.data, pen='#000000')
-
         self.data = self.data = np.array([[0,0]])
         self.curve.setPos(0, 0)
 
-    def updateWaveform(self):
+    # Обновление графика одиночной парой данных. В аргументы передается пара значений x и y.
+    def updateWaveformBySingle(self, singleData):
         if self.ptr < self.chunkSize:
             if self.ptr != 0:
-                self.data = np.append(self.data, [[self.counterTime,
-                                                   self.sinSignal(self.amplitude,
-                                                                  self.counterTime,
-                                                                  self.freq)]], axis=0)
+                self.data = np.append(self.data, [[singleData[0],
+                                                   singleData[1]]], axis=0)
             else:
-                self.data[self.ptr, 0] = self.counterTime
-                self.data[self.ptr, 1] = self.sinSignal(self.amplitude,
-                                                        self.counterTime,
-                                                        self.freq)
+                self.data[self.ptr, 0] = singleData[0]
+                self.data[self.ptr, 1] = singleData[1]
+            self.ptr += 1
         else:
             self.data[:-1, 0] = self.data[1:, 0]
             self.data[:-1, 1] = self.data[1:, 1]
-            self.data[-1, 0] = self.counterTime
-            self.data[-1, 1] = self.sinSignal(self.amplitude,
-                                              self.counterTime,
-                                              self.freq)
+            self.data[-1, 0] = singleData[0]
+            self.data[-1, 1] =  singleData[1]
         self.curve.setData(x=self.data[:, 0], y=self.data[:, 1])
-        self.ptr += 1
-        self.counterTime += 0.05
-
-    def sinSignal(self, amplitude, time, freq):
-        y = amplitude * np.sin(2*np.pi*freq * time)
-        return y
