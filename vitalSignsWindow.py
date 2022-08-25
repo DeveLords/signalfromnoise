@@ -1,4 +1,3 @@
-from platform import freedesktop_os_release
 import numpy as np
 
 from PySide6 import QtWidgets
