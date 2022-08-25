@@ -109,5 +109,5 @@ class vitalSignsWindow(QtWidgets.QWidget):
         self.counterTimer = 0
 
 def sinSignal(amplitude, time, freq):
-    y = np.sin(2*np.pi*freq * time)
+    y = amplitude * np.sin(2*np.pi*freq * time)
     return y, freq
