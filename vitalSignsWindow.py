@@ -1,3 +1,4 @@
+from platform import freedesktop_os_release
 import numpy as np
 
 from PySide6 import QtWidgets
@@ -21,6 +22,7 @@ class vitalSignsWindow(QtWidgets.QWidget):
         startBtn = QtWidgets.QPushButton("Start")
         stopBtn = QtWidgets.QPushButton("Stop")
         pauseBtn = QtWidgets.QPushButton("Pause")
+        pauseBtn.setEnabled(False)
         settingsBtn = QtWidgets.QPushButton("Settings")
         refreshBtn = QtWidgets.QPushButton("Refresh")
 
@@ -86,23 +88,17 @@ class vitalSignsWindow(QtWidgets.QWidget):
 
     # Обновление графиков
     def updatePlots(self):
-        heartData = [self.counterTimer, sinSignal(2, self.counterTimer, np.random.uniform(0.50, 0.51))]
-        breathData = [self.counterTimer, sinSignal(1.5, self.counterTimer, 1)]
+        x_1, freq_1 = sinSignal(2, self.counterTimer, 1.5)
+        x_2, freq_2 = sinSignal(1.5, self.counterTimer, 2)
+        breathData = [self.counterTimer, x_1]
+        heartData = [self.counterTimer, x_2]
 
-        self.waveformHeart.updateWaveformBySingle(heartData)
         self.waveformBreating.updateWaveformBySingle(breathData)
-
+        self.waveformHeart.updateWaveformBySingle(heartData)
 
         self.counterTimer += 0.05
-        self.breathingRateSigns.setText(str(1*60))
-        self.heartRateSigns.setText(str(0.7*60))
-
-        # if self.freq1 != self.waveformBreating.getFrequency():
-        #     self.freq1 = self.waveformBreating.getFrequency()
-        #     self.freq1 = self.freq1 * 60
-        # if self.freq2 != self.waveformHeart.getFrequency():
-        #     self.freq2 = self.waveformHeart.getFrequency()
-        #     self.freq2 = self.freq2 * 60
+        self.breathingRateSigns.setText(str(freq_1*60))
+        self.heartRateSigns.setText(str(freq_2*60))
 
     # Вызов очистки графиков
     def refreshWaveforms(self):
@@ -113,5 +109,5 @@ class vitalSignsWindow(QtWidgets.QWidget):
         self.counterTimer = 0
 
 def sinSignal(amplitude, time, freq):
-    y = amplitude * np.sin(2*np.pi*freq * time)
-    return y
+    y = np.sin(2*np.pi*freq * time)
+    return y, freq
