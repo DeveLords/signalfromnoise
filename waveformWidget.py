@@ -1,4 +1,3 @@
-from cmath import sin
 from PySide6 import QtWidgets
 from PySide6 import QtCore
 
@@ -13,10 +12,9 @@ class waveformWidget(QtWidgets.QWidget):
         self.waveform = pg.PlotWidget(title=namePlot, background="#efefef")
         self.waveform.showGrid(x=True, y=True)
         self.waveform.setLabel('bottom', 'time', 's')
-        self.waveform.setLabel('left', 'Phase', 'radian')
         self.waveform.setYRange(-10, 10)
 
-        # Настройка макета
+        # Настройка макетаdasf
         layout = QtWidgets.QGridLayout()
         layout.addWidget(self.waveform, 0, 0)
         self.setLayout(layout)
@@ -36,9 +34,11 @@ class waveformWidget(QtWidgets.QWidget):
         self.curve = self.waveform.plot(self.data, pen='#000000')
         self.data = self.data = np.array([[0,0]])
         self.curve.setPos(0, 0)
+        self.waveform.setYRange(-10, 10)
 
     # Обновление графика одиночной парой данных. В аргументы передается пара значений x и y.
     def updateWaveformBySingle(self, singleData):
+        # self.curve.setPos(self.data[0, 0], 0)
         if self.ptr < self.chunkSize:
             if self.ptr != 0:
                 self.data = np.append(self.data, [[singleData[0],
