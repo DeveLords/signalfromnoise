@@ -18,7 +18,7 @@ class waveformWidget(QtWidgets.QWidget):
         self.waveform.showGrid(y=True)
         self.waveform.setLabel('bottom', 'time', 's')
         self.waveform.setYRange(-1, 1)
-        self.waveform.setXRange(self.leftX, self.rightX)
+        self.waveform.setXRange(self.leftX, self.rightX, padding= 0)
 
         # Настройка макета
         layout = QtWidgets.QGridLayout()
@@ -28,8 +28,8 @@ class waveformWidget(QtWidgets.QWidget):
         # Параметры данных
         self.chunkSize = 100
         self.maxChunks = 15
-        # self.data = np.array([[0,0]])
-        self.dataScroll = np.empty((self.chunkSize+1, 2))
+        self.dataScroll = np.array([[0,0]])
+        # self.dataScroll = np.empty((self.chunkSize+1, 2))
         # self.curve = self.waveform.plot(self.data, pen='#000000')
         self.curves = []
 
@@ -43,7 +43,7 @@ class waveformWidget(QtWidgets.QWidget):
         self.rightX = 10
         self.waveform.clear()
         self.curves.clear()
-        self.dataScroll = np.empty((self.chunkSize+1, 2))
+        self.dataScroll = np.array([[0,0]])
         self.waveform.setYRange(-1, 1)
         self.waveform.setXRange(0, 10)
 
@@ -71,20 +71,20 @@ class waveformWidget(QtWidgets.QWidget):
         if self.ptr > 200:
             self.leftX += 0.05
             self.rightX += 0.05
-            self.waveform.setXRange(self.leftX , self.rightX)
+            self.waveform.setXRange(self.leftX , self.rightX, padding= 0)
         i = self.ptr % self.chunkSize
         if i == 0:
             curve = self.waveform.plot(pen='#000000')
             self.curves.append(curve)
             last = self.dataScroll[-1]
-            self.dataScroll = np.empty((self.chunkSize+1,2))
+            self.dataScroll = np.empty((self.chunkSize+1, 2))
             self.dataScroll[0] = last
             while len(self.curves) > self.maxChunks:
                 c = self.curves.pop(0)
                 self.waveform.removeItem(c)
         else:
             curve = self.curves[-1]
-        self.dataScroll[i+1,0] = singleData[0]
-        self.dataScroll[i+1,1] = singleData[1]
+        self.dataScroll[i+1, 0] = singleData[0]
+        self.dataScroll[i+1, 1] = singleData[1]
         curve.setData(x=self.dataScroll[:i+2, 0], y=self.dataScroll[:i+2, 1])
         self.ptr += 1

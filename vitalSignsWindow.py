@@ -51,7 +51,6 @@ class vitalSignsWindow(QtWidgets.QWidget):
         cmBreathTextEdit = QtWidgets.QLineEdit()
         thBreathTextEdit = QtWidgets.QDoubleSpinBox()
 
-
         indexTextEdit = QtWidgets.QLineEdit()
         hrpkTextEdit = QtWidgets.QLineEdit()
         hrftTextEdit = QtWidgets.QLineEdit()
@@ -113,7 +112,6 @@ class vitalSignsWindow(QtWidgets.QWidget):
         bottomParamsPlotLayout.addWidget(QtWidgets.QLabel("TH Breath"), 1, 8)
         bottomParamsPlotLayout.addWidget(thHeartTextEdit, 1, 9)
 
-
         menageGrp = QtWidgets.QGroupBox()
         menageGrp.setLayout(menageGrpLayout)
 
@@ -125,7 +123,6 @@ class vitalSignsWindow(QtWidgets.QWidget):
 
         bottomParamsPlotGrp = QtWidgets.QGroupBox()
         bottomParamsPlotGrp.setLayout(bottomParamsPlotLayout)
-        # bottomParamsPlotGrp.setSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Minimum)
 
         self.waveformBreating = waveformWidget("Breating waveform")
         self.waveformBreating.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
@@ -164,7 +161,7 @@ class vitalSignsWindow(QtWidgets.QWidget):
     # Обновление графиков
     def updatePlots(self):
 
-        # Получение данных из функции sinSignal
+        # Получение данных из функции sinSignal. Вместо sin сиг
         x_1, freq_1 = sinSignal(.48, self.counterTimer, 4)
         x_2, freq_2 = sinSignal(.28, self.counterTimer, 3)
         x_3, _ = sinSignal(.11, self.counterTimer, 1.3)
@@ -173,6 +170,8 @@ class vitalSignsWindow(QtWidgets.QWidget):
         heartData = [self.counterTimer, x_2]
         chestDeplacementData = [self.counterTimer, x_3]
         rangeProfileData = [self.counterTimer, x_4]
+        freq_1 = round(freq_1 * 60, 2)
+        freq_2 = round(freq_2 * 60, 2)
 
         # Вывод данных
         self.waveformBreating.updateWaveformByScroll(breathData)
@@ -180,19 +179,23 @@ class vitalSignsWindow(QtWidgets.QWidget):
         self.chestDeplacement.updateWaveformByScroll(chestDeplacementData)
         self.rangeProfilePlt.updateWaveformByScroll(rangeProfileData)
 
-        # Обновление счетчика времени
+        # Обновление счетчика времени для генерации данных
         self.counterTimer += 0.05
-        self.breathingRateSigns.setText(str(round(freq_1*60, 2)))
-        self.heartRateSigns.setText(str(round(freq_2*60)))
 
-    # Вызов очистки графиков
+        # Обновление показаний частоты
+        self.breathingRateSigns.setText(str(freq_1))
+        self.heartRateSigns.setText(str(freq_2))
+
+    # Очистка
     def refreshWaveforms(self):
         self.waveformBreating.refreshWaveform()
         self.waveformHeart.refreshWaveform()
         self.chestDeplacement.refreshWaveform()
         self.rangeProfilePlt.refreshWaveform()
+
         self.heartRateSigns.setText('0')
         self.breathingRateSigns.setText('0')
+
         self.counterTimer = 0
 
 def sinSignal(amplitude, time, freq):
