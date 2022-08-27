@@ -5,11 +5,11 @@
 
 Запуск отладки интерфейса для вывода показателей:
 
-`python main.py` или `python main.py --debug_vital`
+`python main.py` или `python main.py --debug-vital`
 
 Запуск отладки интерфейса радара:
 
-`python main.py --debug_radar`
+`python main.py --debug-radar`
 
 ### Описание
 #
@@ -17,4 +17,4 @@
 
 `witalSignsWindow.py` - реализация окна с показателями.
 
-`waveformWidget.py` - прокручиваемый график.
+`waveformWidget.py` - график со скроллом.

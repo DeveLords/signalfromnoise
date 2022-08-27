@@ -23,7 +23,7 @@ def main(debug_mode=None):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('--debug_radar', action='store_true', help='debug mode for radar')
-    parser.add_argument('--debug_vital', action='store_true', help='debug mode for vital signs radar')
+    parser.add_argument('--debug-radar', action='store_true', help='debug mode for radar')
+    parser.add_argument('--debug-vital', action='store_true', help='debug mode for vital signs radar')
     args = parser.parse_args()
     main(args)

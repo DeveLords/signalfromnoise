@@ -163,24 +163,27 @@ class vitalSignsWindow(QtWidgets.QWidget):
 
     # Обновление графиков
     def updatePlots(self):
-        x_1, freq_1 = sinSignal(2, self.counterTimer, 1.5)
-        x_2, freq_2 = sinSignal(1.5, self.counterTimer, 2)
-        x_3, _ = sinSignal(1, self.counterTimer, 1.3)
-        x_4, _ = sinSignal(1.2, self.counterTimer, 1.1)
+
+        # Получение данных из функции sinSignal
+        x_1, freq_1 = sinSignal(.48, self.counterTimer, 4)
+        x_2, freq_2 = sinSignal(.28, self.counterTimer, 3)
+        x_3, _ = sinSignal(.11, self.counterTimer, 1.3)
+        x_4, _ = sinSignal(.25, self.counterTimer, 1.1)
         breathData = [self.counterTimer, x_1]
         heartData = [self.counterTimer, x_2]
         chestDeplacementData = [self.counterTimer, x_3]
         rangeProfileData = [self.counterTimer, x_4]
 
+        # Вывод данных
+        self.waveformBreating.updateWaveformByScroll(breathData)
+        self.waveformHeart.updateWaveformByScroll(heartData)
+        self.chestDeplacement.updateWaveformByScroll(chestDeplacementData)
+        self.rangeProfilePlt.updateWaveformByScroll(rangeProfileData)
 
-        self.waveformBreating.updateWaveformBySingle(breathData)
-        self.waveformHeart.updateWaveformBySingle(heartData)
-        self.chestDeplacement.updateWaveformBySingle(chestDeplacementData)
-        self.rangeProfilePlt.updateWaveformBySingle(rangeProfileData)
-
+        # Обновление счетчика времени
         self.counterTimer += 0.05
-        self.breathingRateSigns.setText(str(freq_1*60))
-        self.heartRateSigns.setText(str(freq_2*60))
+        self.breathingRateSigns.setText(str(round(freq_1*60, 2)))
+        self.heartRateSigns.setText(str(round(freq_2*60)))
 
     # Вызов очистки графиков
     def refreshWaveforms(self):
