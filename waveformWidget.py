@@ -27,7 +27,7 @@ class waveformWidget(QtWidgets.QWidget):
 
         # Параметры данных
         self.chunkSize = 100
-        self.maxChunks = 15
+        self.maxChunks = 20
         self.dataScroll = np.array([[0,0]])
         # self.dataScroll = np.empty((self.chunkSize+1, 2))
         # self.curve = self.waveform.plot(self.data, pen='#000000')
@@ -88,3 +88,9 @@ class waveformWidget(QtWidgets.QWidget):
         self.dataScroll[i+1, 1] = singleData[1]
         curve.setData(x=self.dataScroll[:i+2, 0], y=self.dataScroll[:i+2, 1])
         self.ptr += 1
+
+    def setMaxChunks(self, value):
+        self.maxChunks = value
+
+    def getMaxChunks(self):
+        return self.maxChunks
