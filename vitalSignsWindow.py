@@ -161,7 +161,7 @@ class vitalSignsWindow(QtWidgets.QWidget):
     # Обновление графиков
     def updatePlots(self):
 
-        # Получение данных из функции sinSignal. Вместо sin сиг
+        # Получение данных из функции sinSignal. В данном блоке формируются данные, которые будут отображаться на графиках
         x_1, freq_1 = sinSignal(.48, self.counterTimer, 4)
         x_2, freq_2 = sinSignal(.28, self.counterTimer, 3)
         x_3, _ = sinSignal(.11, self.counterTimer, 1.3)
@@ -173,11 +173,13 @@ class vitalSignsWindow(QtWidgets.QWidget):
         freq_1 = round(freq_1 * 60, 2)
         freq_2 = round(freq_2 * 60, 2)
 
-        # Вывод данных
+        # Обновление верхних графиков
         self.waveformBreating.updateWaveformByScroll(breathData)
         self.waveformHeart.updateWaveformByScroll(heartData)
-        self.chestDeplacement.updateWaveformByScroll(chestDeplacementData)
-        self.rangeProfilePlt.updateWaveformByScroll(rangeProfileData)
+
+        # Обновление двух нижних графиков
+        # self.chestDeplacement.updateWaveformByScroll(chestDeplacementData)
+        # self.rangeProfilePlt.updateWaveformByScroll(rangeProfileData)
 
         # Обновление счетчика времени для генерации данных
         self.counterTimer += 0.05
