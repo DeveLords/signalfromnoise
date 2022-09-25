@@ -146,6 +146,7 @@ class vitalSignsWindow(QtWidgets.QWidget):
         centralGridLayout.addWidget(bottomParamsPlotGrp, 4, 0, 1, 2)
         centralGridLayout.addWidget(menageGrp, 1, 2, 2, 1)
 
+        # Таймер обновления, с частотой 50 гц.
         self.timer = QtCore.QTimer()
         self.timer.setInterval(50)
 
@@ -161,25 +162,29 @@ class vitalSignsWindow(QtWidgets.QWidget):
     # Обновление графиков
     def updatePlots(self):
 
-        # Получение данных из функции sinSignal. В данном блоке формируются данные, которые будут отображаться на графиках
-        x_1, freq_1 = sinSignal(.48, self.counterTimer, 4)
-        x_2, freq_2 = sinSignal(.28, self.counterTimer, 3)
-        x_3, _ = sinSignal(.11, self.counterTimer, 1.3)
-        x_4, _ = sinSignal(.25, self.counterTimer, 1.1)
-        breathData = [self.counterTimer, x_1]
-        heartData = [self.counterTimer, x_2]
-        chestDeplacementData = [self.counterTimer, x_3]
-        rangeProfileData = [self.counterTimer, x_4]
+        # Получение данных из функции sinSignal. В данном блоке формируются данные,
+        # которые будут отображаться на графиках
+        y_1, freq_1 = sinSignal(.48, self.counterTimer, 4)
+        y_2, freq_2 = sinSignal(.28, self.counterTimer, 3)
+        y_3, _ = sinSignal(.11, self.counterTimer, 1.3)
+        y_4, _ = sinSignal(.25, self.counterTimer, 1.1)
+
+        # breathData = [self.counterTimer, y_1]
+        # heartData = [self.counterTimer, y_2]
+
+        # chestDeplacementData = [self.counterTimer, y_3]
+        # rangeProfileData = [self.counterTimer, y_4]
+
         freq_1 = round(freq_1 * 60, 2)
         freq_2 = round(freq_2 * 60, 2)
 
         # Обновление верхних графиков
-        self.waveformBreating.updateWaveformByScroll(breathData)
-        self.waveformHeart.updateWaveformByScroll(heartData)
+        self.waveformBreating.updateWaveformByScroll(self.counterTimer, y_1)
+        self.waveformHeart.updateWaveformByScroll(self.counterTimer, y_2)
 
         # Обновление двух нижних графиков
-        # self.chestDeplacement.updateWaveformByScroll(chestDeplacementData)
-        # self.rangeProfilePlt.updateWaveformByScroll(rangeProfileData)
+        # self.chestDeplacement.updateWaveformByScroll(self.counterTimer, y_3)
+        # self.rangeProfilePlt.updateWaveformByScroll(self.counterTimer, y_4)
 
         # Обновление счетчика времени для генерации данных
         self.counterTimer += 0.05
@@ -188,7 +193,7 @@ class vitalSignsWindow(QtWidgets.QWidget):
         self.breathingRateSigns.setText(str(freq_1))
         self.heartRateSigns.setText(str(freq_2))
 
-    # Очистка
+    # Сброс графиков
     def refreshWaveforms(self):
         self.waveformBreating.refreshWaveform()
         self.waveformHeart.refreshWaveform()
@@ -200,6 +205,7 @@ class vitalSignsWindow(QtWidgets.QWidget):
 
         self.counterTimer = 0
 
+# Генератор данных
 def sinSignal(amplitude, time, freq):
     y = amplitude * np.sin(2*np.pi*freq * time)
     return y, freq

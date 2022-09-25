@@ -1,4 +1,3 @@
-import chunk
 from PySide6 import QtWidgets
 from PySide6 import QtCore
 
@@ -6,7 +5,7 @@ import pyqtgraph as pg
 import numpy as np
 
 class waveformWidget(QtWidgets.QWidget):
-    def __init__(self, namePlot: str):
+    def __init__(self, namePlot: str, maxChunks = 20):
         super().__init__()
 
         # Значение для левой и правой границы x
@@ -29,8 +28,10 @@ class waveformWidget(QtWidgets.QWidget):
         self.chunkSize = 100
         self.maxChunks = 20
         self.dataScroll = np.array([[0,0]])
+
         # self.dataScroll = np.empty((self.chunkSize+1, 2))
         # self.curve = self.waveform.plot(self.data, pen='#000000')
+
         self.curves = []
 
         # Указатель на последний элемент при заполнении массива
@@ -66,7 +67,7 @@ class waveformWidget(QtWidgets.QWidget):
     #     self.curve.setData(x=self.data[:, 0], y=self.data[:, 1])
 
     # Новая функция обновления графика
-    def updateWaveformByScroll(self, singleData):
+    def updateWaveformByScroll(self, xAxisData, yAxisData):
         # print(self.ptr)
         if self.ptr > 200:
             self.leftX += 0.05
@@ -84,11 +85,13 @@ class waveformWidget(QtWidgets.QWidget):
                 self.waveform.removeItem(c)
         else:
             curve = self.curves[-1]
-        self.dataScroll[i+1, 0] = singleData[0]
-        self.dataScroll[i+1, 1] = singleData[1]
+        self.dataScroll[i+1, 0] = xAxisData
+        self.dataScroll[i+1, 1] = yAxisData
         curve.setData(x=self.dataScroll[:i+2, 0], y=self.dataScroll[:i+2, 1])
         self.ptr += 1
 
+    # Установка значения отображаемых данных
+    # В одном чанке 100 значений
     def setMaxChunks(self, value):
         self.maxChunks = value
 
